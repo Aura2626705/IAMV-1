@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Untitled</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School SMS System</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+        .section { margin-top: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 5px; background: #fafafa; }
+        .section h3 { color: #007bff; margin-top: 0; }
+        .form-group { margin-bottom: 15px; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; }
+        input[type="text"], input[type="number"], textarea { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 15px;}
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        button { background-color: #28a745; color: white; border: none; padding: 12px 15px; cursor: pointer; border-radius: 4px; font-size: 16px; width: 100%; margin-top: 15px; font-weight: bold;}
+        button:hover { background-color: #218838; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>School SMS Management System</h2>
+
+    <div class="section">
+        <h3>1. Teacher Registration</h3>
+        <div class="form-group">
+            <label>Teacher's Name:</label>
+            <input type="text" id="tName" placeholder="e.g. Mr. Nimal">
+        </div>
+        <div class="form-group">
+            <label>Phone Number:</label>
+            <input type="text" id="tPhone" placeholder="07XXXXXXXX">
+        </div>
+        <button onclick="sendTeacherSMS()">Send Registration SMS</button>
+    </div>
+
+    <div class="section">
+        <h3>2. Student Discipline Report</h3>
+        <div class="form-group">
+            <label>Student's Name:</label>
+            <input type="text" id="dName" placeholder="e.g. Kasun Perera">
+        </div>
+        <div class="form-group">
+            <label>Parent's Phone Number:</label>
+            <input type="text" id="dPhone" placeholder="07XXXXXXXX">
+        </div>
+        <div class="form-group">
+            <label>Disciplinary Issue / Remarks:</label>
+            <textarea id="dRemark" rows="3" placeholder="Briefly describe the issue..."></textarea>
+        </div>
+        <button onclick="sendDisciplineSMS()">Send Discipline SMS</button>
+    </div>
+
+    <div class="section">
+        <h3>3. Student Progress Report</h3>
+        <div class="form-group">
+            <label>Student's Name:</label>
+            <input type="text" id="pName" placeholder="e.g. Kasun Perera">
+        </div>
+        <div class="form-group">
+            <label>Parent's Phone Number:</label>
+            <input type="text" id="pPhone" placeholder="07XXXXXXXX">
+        </div>
+        
+        <label style="margin-top: 15px; color:#555;">Marks for 9 Subjects:</label>
+        <div class="grid-3">
+            <div><label>Religion</label><input type="number" id="sub1"></div>
+            <div><label>First Language</label><input type="number" id="sub2"></div>
+            <div><label>English</label><input type="number" id="sub3"></div>
+            <div><label>Mathematics</label><input type="number" id="sub4"></div>
+            <div><label>Science</label><input type="number" id="sub5"></div>
+            <div><label>History</label><input type="number" id="sub6"></div>
+            <div><label>Group 1 (Geog/Civics)</label><input type="number" id="sub7"></div>
+            <div><label>Group 2 (Art/Dance)</label><input type="number" id="sub8"></div>
+            <div><label>Group 3 (IT/Health)</label><input type="number" id="sub9"></div>
+        </div>
+        <button onclick="sendProgressSMS()">Send Progress SMS</button>
+    </div>
+</div>
+
+<script>
+    // ඔබගේ Notify.lk ගිණුමේ දත්ත
+    const USER_ID = "31068";
+    const API_KEY = "a48nQNetmW53WqUTdw0c";
+    const SENDER_ID = "NotifyDEMO"; // පාසලේ Sender ID එක ලැබුණු පසු මෙය වෙනස් කරන්න
+
+    async function sendSMS(phone, message) {
+        if (!phone || !message) {
+            alert("Please fill in all required fields!");
+            return;
+        }
+
+        // දුරකථන අංකය 947XXXXXXXX ආකාරයට සැකසීම
+        let formattedPhone = phone.trim();
+        if (formattedPhone.startsWith("0")) {
+            formattedPhone = "94" + formattedPhone.substring(1);
+        }
+
+        const url = "https://app.notify.lk/api/v1/send";
+        const params = new URLSearchParams();
+        params.append("user_id", USER_ID);
+        params.append("api_key", API_KEY);
+        params.append("sender_id", SENDER_ID);
+        params.append("to", formattedPhone);
+        params.append("message", message);
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params.toString()
+            });
+            
+            const result = await response.json();
+            if (result.status === "success") {
+                alert("✅ SMS Sent Successfully!");
+            } else {
+                alert("❌ Failed to send SMS.\\n" + (result.errors ? result.errors.join(", ") : "Error occurred."));
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("⚠️ Error sending SMS. Browser CORS policy might be blocking the request.");
+        }
+    }
+
+    function sendTeacherSMS() {
+        const name = document.getElementById('tName').value;
+        const phone = document.getElementById('tPhone').value;
+        const msg =  `IAMV- aura 
+        
+        Dear ${name}, your registration as a teacher is successful. Welcome to our school staff!`;
+        
+        if(confirm(`Send this message?\\n\\n${msg}`)) {
+            sendSMS(phone, msg);
+        }
+    }
+
+    function sendDisciplineSMS() {
+        const name = document.getElementById('dName').value;
+        const phone = document.getElementById('dPhone').value;
+        const remark = document.getElementById('dRemark').value;
+        const msg = `Discipline Alert: Notice regarding student ${name}. Issue: ${remark}. Please contact the school administration immediately.`;
+        
+        if(confirm(`Send this message?\\n\\n${msg}`)) {
+            sendSMS(phone, msg);
+        }
+    }
+
+    function sendProgressSMS() {
+        const name = document.getElementById('pName').value;
+        const phone = document.getElementById('pPhone').value;
+        
+        const m1 = document.getElementById('sub1').value || 0;
+        const m2 = document.getElementById('sub2').value || 0;
+        const m3 = document.getElementById('sub3').value || 0;
+        const m4 = document.getElementById('sub4').value || 0;
+        const m5 = document.getElementById('sub5').value || 0;
+        const m6 = document.getElementById('sub6').value || 0;
+        const m7 = document.getElementById('sub7').value || 0;
+        const m8 = document.getElementById('sub8').value || 0;
+        const m9 = document.getElementById('sub9').value || 0;
+
+        const total = parseInt(m1) + parseInt(m2) + parseInt(m3) + parseInt(m4) + parseInt(m5) + parseInt(m6) + parseInt(m7) + parseInt(m8) + parseInt(m9);
+
+        // SMS එකට යන අකුරු ප්‍රමාණය අඩු කිරීම සඳහා විෂයන් කෙටි කර ඇත
+        const msg = `Term Report - ${name}\\nRel:${m1} Lan:${m2} Eng:${m3} Mat:${m4} Sci:${m5} His:${m6} G1:${m7} G2:${m8} G3:${m9}\\nTotal: ${total}\\nPrincipal.`;
+        
+        if(confirm(`Send this message?\\n\\n${msg}`)) {
+            sendSMS(phone, msg);
+        }
+    }
+</script>
+
+</body>
+</html>
+    
+  </body>
+  
+</html>
